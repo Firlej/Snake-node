@@ -5,7 +5,7 @@ let playerids = [];
 let me;
 
 const tile = 40;
-const gridsize = 20;
+let gridsize = 20;
 
 let ptx=pty=tx=ty=0;
 
@@ -21,7 +21,7 @@ function setup(callback) {
 	textAlign('center');
 	font(tile/3+'px Arial');
 
-	me = addPlayer("ABCD", {x: 5, y: 5}, {x: 1, y: 0});
+	me = addPlayer("ABCD", vec(5, 5), vec(1, 0));
 	
 	callback();
 }

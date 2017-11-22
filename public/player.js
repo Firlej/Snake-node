@@ -7,7 +7,7 @@ class Player {
 			vec(pos.x-1, pos.y),
 			vec(pos.x-2, pos.y),
 			vec(pos.x-3, pos.y),
-			vec(pos.x-3, pos.y),
+			vec(pos.x-3, pos.y)
 		]
 		this.dir = vec(0, 1);
 		this.color = randomRgb();
@@ -18,7 +18,7 @@ class Player {
 		this.dir.set(x, y);
 	}
 
-	update(pos) {
+	update() {
 		if (this.tail[0].x+this.dir.x>=gridsize || this.tail[0].y+this.dir.y>=gridsize ||
 			this.tail[0].x+this.dir.x<0 || this.tail[0].y+this.dir.y<0) { this.dir.set(0, 0); }
 		// todo is this check necessary?
@@ -31,6 +31,7 @@ class Player {
 			this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
 		}
 		this.tail[0].add(this.dir);
+		this.dir.set(0, 0)
 	}
 
 	draw() {

@@ -1,4 +1,5 @@
 let express = require('express');
+let o = require('./oskar-node.js');
 let app = express();
 let server = app.listen(process.env.PORT || 3000, function() {
 	let host = server.address().address;
@@ -13,8 +14,9 @@ let io = require('socket.io')(server);
 io.sockets.on('connection', onConnection);
 
 function onConnection(socket) {
-
-	addUser(socket);
+	let me = addUser(socket);
+	
+	console.log(me);
 
 	socket.on('disconnect', onDisconnect);
 
@@ -25,17 +27,28 @@ function onConnection(socket) {
 
 let users = userids = [];
 
-setInterval(updateAll, 100);
+setInterval(updateAll, 512);
 
 function updateAll() {
-	//
+	io.emit('update', 'frame');
 }
 //
 
 class User {
-	constructor(socket) {
+	constructor(socket, pos = o.vec(5, 5)) {
 		this.id = socket.id;
 		this.shid = this.id.substring(this.id.length-4);
+		this.tail = [
+			o.vec(pos.x, pos.y),
+			o.vec(pos.x-1, pos.y),
+			o.vec(pos.x-2, pos.y),
+			o.vec(pos.x-3, pos.y),
+			o.vec(pos.x-3, pos.y)
+		]
+		console.log(this.tail[0]);
+		this.dir = o.vec(0, 1);
+		this.color = o.randomRgb();
+		this.color2 = o.randomRgb();
 	}
 }
 
@@ -44,12 +57,11 @@ function addUser(socket) {
 	userids.push(socket.id);
 	console.log('Client '+socket.id+' has connected');
 	socket.emit('message', 'Welcome to Snake!');
-
 	socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
+	return users[socket.id];
 }
 
 //
-
 
 // io.sockets.emit('allPlayersData', data);
 // socket.emit('allPlayersData', data);
