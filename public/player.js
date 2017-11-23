@@ -1,14 +1,8 @@
 class Player {
-	constructor(id, pos = {x: 5, y: 5}) {
+	constructor(id) {
 		this.id = id;
 		this.shid = this.id.substring(this.id.length-4);
-		this.tail = [
-			vec(pos.x, pos.y),
-			vec(pos.x-1, pos.y),
-			vec(pos.x-2, pos.y),
-			vec(pos.x-3, pos.y),
-			vec(pos.x-3, pos.y)
-		]
+		this.tail = []
 		this.dir = vec(0, 1);
 		this.color1 = randomRgb();
 		this.color2 = randomRgb();
@@ -18,24 +12,24 @@ class Player {
 		this.dir.set(x, y);
 	}
 
-	update() {
-		if (this.tail[0].x+this.dir.x>=gridsize || this.tail[0].y+this.dir.y>=gridsize ||
-			this.tail[0].x+this.dir.x<0 || this.tail[0].y+this.dir.y<0) { this.dir.set(0, 0); }
-		// todo is this check necessary?
-		if (this.dir.x==0 && this.dir.y==0) {
-			//console.log('Tried to update snake with not set dir');
-			return;
-		}
+	// update() {
+	// 	if (this.tail[0].x+this.dir.x>=gridsize || this.tail[0].y+this.dir.y>=gridsize ||
+	// 		this.tail[0].x+this.dir.x<0 || this.tail[0].y+this.dir.y<0) { this.dir.set(0, 0); }
+	// 	// todo is this check necessary?
+	// 	if (this.dir.x==0 && this.dir.y==0) {
+	// 		//console.log('Tried to update snake with not set dir');
+	// 		return;
+	// 	}
 
-		for(var i=this.tail.length-1; i>=1; i--) {
-			this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
-		}
-		this.tail[0].add(this.dir);
-		//this.dir.set(0, 0)
-	}
+	// 	for(var i=this.tail.length-1; i>=1; i--) {
+	// 		this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
+	// 	}
+	// 	this.tail[0].add(this.dir);
+	// 	//this.dir.set(0, 0)
+	// }
 
 	draw() {
-		fill(this.color);
+		fill(this.color1);
 		stroke(this.color2);
 		for(var i=this.tail.length-1; i>=1; i--) {
 			rect(this.tail[i].x*tile, this.tail[i].y*tile, tile, tile);

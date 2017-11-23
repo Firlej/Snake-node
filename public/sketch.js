@@ -3,6 +3,7 @@ let socket;
 let players = [];
 let playerids = [];
 let me;
+let myId;
 
 const tile = 40;
 let gridsize = 20;
@@ -15,6 +16,7 @@ function setup(callback) {
 	background('black');
 
 	socket = io.connect('http://localhost:3000');
+	console.log(socket.id);
 	
 	socketEvents();
 
@@ -29,7 +31,7 @@ function setup(callback) {
 function draw() {
 	background('black');
 
-	if (me==undefined) {
+	if (me==undefined || myId==undefined) {
 		fill('white');
 		text("LOADING", width/2, height/2);
 		console.log("fff");
@@ -37,8 +39,8 @@ function draw() {
 	}
 
 	push();
-		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.03);
-		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.03);
+		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.01);
+		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.01);
 		ptx=tx; pty=ty;
 		translate(tx, ty);
 		drawBorders();
@@ -48,12 +50,15 @@ function draw() {
 
 function keyPressed() {
 	//console.log(keyCode);
-	//socket.emit('keyPressed', keyCode);
+	let dir = "";
 	switch(keyCode) {
-		case 97: me.setDir(-1, 0); break;
-		case 119: me.setDir(0, -1); break;
-		case 100: me.setDir(1, 0); break;
-		case 115: me.setDir(0, 1); break;
+		case 119: dir = "UP"; break;
+		case 97: dir = "LEFT"; break;
+		case 115: dir = "DOWN"; break;
+		case 100: dir = "RIGHT"; break;
+	}
+	if (dir != "") {
+		socket.emit('newDir', dir);
 	}
 }
 
@@ -67,5 +72,5 @@ function drawBorders() {
 }
 
 function mousePressed() {
-	updateAllPlayers();
+	//
 }

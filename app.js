@@ -15,10 +15,13 @@ io.sockets.on('connection', onConnection);
 
 function onConnection(socket) {
 	let me = addUser(socket);
-	
-	//console.log(me);
 
 	socket.on('disconnect', onDisconnect);
+	socket.on('newDir', onNewDir);
+
+	function onNewDir(data) {
+		me.setDir(data);
+	}
 
 	function onDisconnect() {
 		users[socket.id] = null;
@@ -38,7 +41,7 @@ let users = userids = [];
 setInterval(updateAll, 512);
 
 function updateAll() {
-	io.emit('update', 'frame');
+	//io.emit('update', 'frame');
 
 	for (let i=0; i<userids.length; i++) {
 		let user = users[userids[i]];
@@ -63,34 +66,41 @@ function updateAll() {
 //
 
 class User {
-	constructor(socket, pos = o.vec(Math.floor(o.random(4, gridsize)), Math.floor(o.random(0, 10)))) {
+	constructor(socket) {
 		this.id = socket.id;
 		this.shid = this.id.substring(this.id.length-4);
-		this.tail = [
-			o.vec(pos.x, pos.y),
-			o.vec(pos.x-1, pos.y),
-			o.vec(pos.x-2, pos.y),
-			o.vec(pos.x-3, pos.y),
-			o.vec(pos.x-4, pos.y)
-		]
+		this.tail = [];
+		this.tail[0] = o.vec(Math.floor(o.random(4, gridsize)), Math.floor(o.random(0, gridsize)));
+		this.tail[1] = o.vec(this.tail[0].x-1, this.tail[0].y);
+		this.tail[2] = o.vec(this.tail[0].x-2, this.tail[0].y);
+		this.tail[3] = o.vec(this.tail[0].x-3, this.tail[0].y);
 		this.dir = o.vec(0, 1);
 		this.color1 = o.randomRgb();
 		this.color2 = o.randomRgb();
+		console.log(this.color1, this.color2);
 
 		this.update = function() {
-			if (this.tail[0].x+this.dir.x>=gridsize || this.tail[0].y+this.dir.y>=gridsize ||
-				this.tail[0].x+this.dir.x<0 || this.tail[0].y+this.dir.y<0) { this.dir.set(0, 0); }
+			if (this.tail[0].x+this.dir.x>=gridsize || 
+				this.tail[0].y+this.dir.y>=gridsize ||
+				this.tail[0].x+this.dir.x<0 || 
+				this.tail[0].y+this.dir.y<0) { return; }
 			// todo is this check necessary?
-			if (this.dir.x==0 && this.dir.y==0) {
-				//console.log('Tried to update snake with not set dir');
-				return;
-			}
 	
 			for(var i=this.tail.length-1; i>=1; i--) {
 				this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
 			}
 			this.tail[0].add(this.dir);
 			//this.dir.set(0, 0)
+		}
+
+		this.setDir = function(data) {
+			switch(data) {
+				case "UP": this.dir.set(0, -1); break;
+				case "LEFT": this.dir.set(-1, 0); break;
+				case "DOWN": this.dir.set(0, 1); break;
+				case "RIGHT": this.dir.set(1, 0); break;
+			}
+			//this.dir.set(x, y);
 		}
 	}
 
@@ -99,7 +109,7 @@ class User {
 function addUser(socket) {
 	users[socket.id] = new User(socket);
 	userids.push(socket.id);
-	console.log('Client '+socket.id+' has connected');
+	console.log('Client '+users[socket.id].id+' has connected');
 	socket.emit('message', 'Welcome to Snake!');
 	socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
 	return users[socket.id];
