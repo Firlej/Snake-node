@@ -1,5 +1,5 @@
 class Player {
-	constructor(id, pos, dir) {
+	constructor(id, pos = {x: 5, y: 5}) {
 		this.id = id;
 		this.shid = this.id.substring(this.id.length-4);
 		this.tail = [
@@ -10,7 +10,7 @@ class Player {
 			vec(pos.x-3, pos.y)
 		]
 		this.dir = vec(0, 1);
-		this.color = randomRgb();
+		this.color1 = randomRgb();
 		this.color2 = randomRgb();
 	}
 
@@ -31,7 +31,7 @@ class Player {
 			this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
 		}
 		this.tail[0].add(this.dir);
-		this.dir.set(0, 0)
+		//this.dir.set(0, 0)
 	}
 
 	draw() {
@@ -48,8 +48,8 @@ class Player {
 	}
 }
 
-function addPlayer(id, pos, dir, color) {
-	players[id] = new Player(id, pos, dir, color);
+function addPlayer(id) {
+	players[id] = new Player(id);//, pos, dir, color);
 	playerids.push(id);
 	return players[id];
 }

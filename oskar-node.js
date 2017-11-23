@@ -186,5 +186,6 @@ function vec(x = 0, y = 0) {
 
 module.exports = {
     vec: vec,
-    randomRgb: randomRgb
+    randomRgb: randomRgb,
+    random: random
 }

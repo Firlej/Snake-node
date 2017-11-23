@@ -21,7 +21,7 @@ function setup(callback) {
 	textAlign('center');
 	font(tile/3+'px Arial');
 
-	me = addPlayer("ABCD", vec(5, 5), vec(1, 0));
+	me = addPlayer("ABCD");//, vec(5, 5), vec(1, 0));
 	
 	callback();
 }
@@ -44,10 +44,6 @@ function draw() {
 		drawBorders();
 		drawAllPlayers();
 	pop();
-
-	if (frameCount%30 == 0) {
-		//updateAllPlayers();
-	}
 }
 
 function keyPressed() {
