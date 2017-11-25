@@ -30,12 +30,28 @@ function onConnection(socket) {
 	}
 }
 
-let users = userids = [];
 
-//
 
+// VARIABLES
+
+	let users = userids = [];
+	let foods = [];
 	let gridsize = 20;
+	let grid = [];
 
+	function setup() {
+
+		clearGrid();
+	}
+
+	function clearGrid() {
+		for (let i = 0; i < gridsize; i++) {
+			grid[i] = [];
+			for (let j = 0; j < gridsize; j++) {
+				grid[i][j] = null;
+			}
+		}
+	}
 //
 
 setInterval(updateAll, 512);
@@ -43,27 +59,16 @@ setInterval(updateAll, 512);
 function updateAll() {
 	//io.emit('update', 'frame');
 
-	for (let i=0; i<userids.length; i++) {
-		let user = users[userids[i]];
-		//console.log(user);
-		user.update();
-		//console.log(user.tail[0].x, user.tail[0].y)
-	}
+	clearGrid();
 
-	let data = [];
-	for (var i = 0; i < userids.length; i++) {
-		let user = users[userids[i]];
-		//console.log(user);
-		data.push({
-			id: user.id,
-			tail: user.tail,
-			color1: user.color1,
-			color2: user.color2
-		});
-	}
-	io.emit('allPlayerData', data);
+	updateAllUsers();
+	io.emit('allPlayerData', getAllPlayerData());
+
+	//console.log(grid);
+
 }
-//
+
+// USER CLASS
 
 class User {
 	constructor(socket) {
@@ -74,48 +79,107 @@ class User {
 		this.tail[1] = o.vec(this.tail[0].x-1, this.tail[0].y);
 		this.tail[2] = o.vec(this.tail[0].x-2, this.tail[0].y);
 		this.tail[3] = o.vec(this.tail[0].x-3, this.tail[0].y);
-		this.dir = o.vec(0, 1);
+		this.dir = o.vec(1, 0);
 		this.color1 = o.randomRgb();
 		this.color2 = o.randomRgb();
-		console.log(this.color1, this.color2);
-
-		this.update = function() {
-			if (this.tail[0].x+this.dir.x>=gridsize || 
-				this.tail[0].y+this.dir.y>=gridsize ||
-				this.tail[0].x+this.dir.x<0 || 
-				this.tail[0].y+this.dir.y<0) { return; }
-			// todo is this check necessary?
-	
-			for(var i=this.tail.length-1; i>=1; i--) {
-				this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
-			}
-			this.tail[0].add(this.dir);
-			//this.dir.set(0, 0)
+		this.dirUpdated = false;
+		this.currDir = null;
+		this.nextDir = null;
+	}
+	update() {
+		this.dirUpdated = false;
+		let newIndex = {
+			x: this.tail[0].x+this.dir.x,
+			y: this.tail[0].y+this.dir.y
+		}
+		if (newIndex.x>=gridsize || newIndex.y>=gridsize || newIndex.x<0 || newIndex.y<0) {
+			return;
 		}
 
-		this.setDir = function(data) {
-			switch(data) {
-				case "UP": this.dir.set(0, -1); break;
-				case "LEFT": this.dir.set(-1, 0); break;
-				case "DOWN": this.dir.set(0, 1); break;
-				case "RIGHT": this.dir.set(1, 0); break;
-			}
-			//this.dir.set(x, y);
+		for(var i=this.tail.length-1; i>=1; i--) {
+			this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
 		}
+		this.tail[0].add(this.dir);
+		if (this.nextDir != null) {
+			this.setDir(this.nextDir);
+			this.nextDir = null;
+		}
+	}
+
+	putOnGrid() {
+		for (let i in this.tail) {
+			let node = this.tail[i];
+			grid[node.x][node.y] = this.id;
+		}
+	}
+
+	setDir(data) {
+		//io.emit('message', data);
+		if (this.currDir == data) {
+			return;
+		}
+
+		if (this.dirUpdated) {
+			this.nextDir = data;
+			return;
+		}
+
+		switch(data) {
+			case "UP": this.dir.set(0, -1); break;
+			case "LEFT": this.dir.set(-1, 0); break;
+			case "DOWN": this.dir.set(0, 1); break;
+			case "RIGHT": this.dir.set(1, 0); break;
+		}
+		this.currDir = data;
+
+		this.dirUpdated = true;
 	}
 
 }
 
-function addUser(socket) {
-	users[socket.id] = new User(socket);
-	userids.push(socket.id);
-	console.log('Client '+users[socket.id].id+' has connected');
-	socket.emit('message', 'Welcome to Snake!');
-	socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
-	return users[socket.id];
-}
+// USER FUNCTIONS
 
-//
+	function addUser(socket) {
+		users[socket.id] = new User(socket);
+		userids.push(socket.id);
+		console.log('Client '+users[socket.id].id+' has connected');
+		socket.emit('message', 'Welcome to Snake!');
+		socket.emit('allPlayerData', getAllPlayerData());
+		socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
+		return users[socket.id];
+	}
+
+	function updateAllUsers() {
+		for (let i=0; i<userids.length; i++) {
+			let user = users[userids[i]];
+			//console.log(user);
+			user.update();
+			//console.log(user.tail[0].x, user.tail[0].y)
+		}
+	}
+
+	function getAllPlayerData() {
+		let data = [];
+		for (let i = 0; i < userids.length; i++) {
+			let user = users[userids[i]];
+			//console.log(user);
+			data.push({
+				id: user.id,
+				tail: user.tail,
+				color1: user.color1,
+				color2: user.color2
+			});
+		}
+		return data;
+	}
+
+// FOOD CLASS
+
+class Food {
+	constructor() {
+		this.pos = o.vec(Math.floor(o.random(0, gridsize)), Math.floor(o.random(0, gridsize)));
+	}
+}
 
 // io.sockets.emit('allPlayersData', data);
 // socket.emit('allPlayersData', data);

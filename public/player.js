@@ -2,8 +2,8 @@ class Player {
 	constructor(id) {
 		this.id = id;
 		this.shid = this.id.substring(this.id.length-4);
-		this.tail = []
-		this.dir = vec(0, 1);
+		this.tail = [];
+		this.dir = vec(0, 0);
 		this.color1 = randomRgb();
 		this.color2 = randomRgb();
 	}
@@ -29,6 +29,7 @@ class Player {
 	// }
 
 	draw() {
+		console.log("ggg");
 		fill(this.color1);
 		stroke(this.color2);
 		for(var i=this.tail.length-1; i>=1; i--) {
@@ -47,15 +48,12 @@ function addPlayer(id) {
 	playerids.push(id);
 	return players[id];
 }
-
-function updateAllPlayers() {
-	for(let i=0; i<playerids.length; i++) {
-		players[playerids[i]].update();
-	}
-}
-
 function drawAllPlayers() {
-	for(let i=0; i<playerids.length; i++) {
+	for (let i=0; i<playerids.length; i++) {
 		players[playerids[i]].draw();
 	}
+	// for (let id in playerids) {
+	// 	console.log(id);
+	// 	//player.draw();
+	// }
 }

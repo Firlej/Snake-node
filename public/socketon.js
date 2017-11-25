@@ -7,6 +7,7 @@ function socketEvents() {
 	socket.on('message', onMessage);
 	socket.on('update', onMessage);
 	socket.on('allPlayerData', onAllPlayerData);
+	socket.on('allFoodData', onAllFoodData);
 
 	function onMessage(data) {
 		console.log(data)
@@ -16,23 +17,29 @@ function socketEvents() {
 		players = [];
 		playerids = [];
 		//console.log(data.length, data);
-		for (var i in data) {
+		for (let i in data) {
 			let user = data[i];
 			let player = players[user.id]; 
 			if (player == undefined) {
 				player = addPlayer(user.id);
-				console.log(user.color1, user.color2);
+				//console.log(user.color1, user.color2);
 				player.color1 = user.color1;
 				player.color2 = user.color2;
-				//console.log(user.id);
 			}
 			player.tail = [];
-			for (var i in user.tail) {
-				player.tail.push(vec(user.tail[i].x, user.tail[i].y));
+			for (let j in user.tail) {
+				player.tail.push(vec(user.tail[j].x, user.tail[j].y));
 			}
 		}
 		me = players[myId];
 		//updateAllPlayers();	
+	}
+
+	function onAllFoodData(data) {
+		foods = [];
+		for (let i in data) {
+			addFood(data[i])
+		}
 	}
 
 	

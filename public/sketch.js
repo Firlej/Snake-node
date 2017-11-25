@@ -1,9 +1,9 @@
 let socket;
 
-let players = [];
-let playerids = [];
-let me;
-let myId;
+let players = playerids = [];
+let foods = [];
+let me = null;
+let myId = null;
 
 const tile = 40;
 let gridsize = 20;
@@ -16,14 +16,15 @@ function setup(callback) {
 	background('black');
 
 	socket = io.connect('http://localhost:3000');
-	console.log(socket.id);
 	
 	socketEvents();
 
 	textAlign('center');
 	font(tile/3+'px Arial');
 
-	me = addPlayer("ABCD");//, vec(5, 5), vec(1, 0));
+	addFood({x: 5, y: 5});
+	addFood({x: 5, y: 5});
+	addFood({x: 5, y: 5});
 	
 	callback();
 }
@@ -31,10 +32,9 @@ function setup(callback) {
 function draw() {
 	background('black');
 
-	if (me==undefined || myId==undefined) {
+	if (me==null || myId==null) {
 		fill('white');
 		text("LOADING", width/2, height/2);
-		console.log("fff");
 		return;
 	}
 
@@ -45,6 +45,7 @@ function draw() {
 		translate(tx, ty);
 		drawBorders();
 		drawAllPlayers();
+		drawAllFoods();
 	pop();
 }
 
