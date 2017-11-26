@@ -18,14 +18,19 @@ function onConnection(socket) {
 
 	socket.on('disconnect', onDisconnect);
 	socket.on('newDir', onNewDir);
+	socket.on('latency', onLatency);
+
+	function onLatency(startTime, cb) {
+		cb(startTime);
+		// console.log(cb.toString());
+	} 
 
 	function onNewDir(data) {
 		me.setDir(data);
 	}
 
 	function onDisconnect() {
-		users[socket.id] = null;
-		userids.splice(userids.indexOf(socket.id), 1)
+		removeUser(socket.id);
 		console.log("Client "+socket.id+" has disconnected");
 	}
 }
@@ -38,7 +43,6 @@ function onConnection(socket) {
 	let grid = [];
 
 	function setup() {
-
 		clearGrid();
 	}
 
@@ -71,10 +75,11 @@ function updateAll() {
 	clearGrid();
 
 	updateAllUsers();
+	killUsers();
 
 	fillFoods();
 
-	io.emit('allPlayerData', getAllPlayerData());
+	io.emit('allPlayerData', getAllUserData());
 	io.emit('allFoodData', getAllFoodData());
 }
 
@@ -95,19 +100,27 @@ class User {
 		this.dirUpdated = false;
 		this.currDir = null;
 		this.nextDir = null;
+		this.dead = false;
+		this.readyToRemove = false;
 	}
 	update() {
-		this.dirUpdated = false;
-		let newIndex = {
-			x: this.tail[0].x+this.dir.x,
-			y: this.tail[0].y+this.dir.y
-		}
-		if (newIndex.x>=gridsize || newIndex.y>=gridsize || newIndex.x<0 || newIndex.y<0) {
+		if (this.dead) {
 			return;
-		} else if (grid[newIndex.x][newIndex.y] != null && grid[newIndex.x][newIndex.y].constructor.name == "Food") {
-			this.eat(newIndex.x, newIndex.y);
-		} else if (grid[newIndex.x][newIndex.y] != null && grid[newIndex.x][newIndex.y].constructor.name == "User") {
-			// kill yourself
+		}
+		this.dirUpdated = false;
+
+		let newx = this.tail[0].x+this.dir.x;
+		let newy = this.tail[0].y+this.dir.y;
+
+		if (newx>=gridsize || newy>=gridsize || newx<0 || newy<0) {
+			return;
+		} else if (grid[newx][newy] != null && grid[newx][newy].constructor.name == "Food") {
+			this.eat(newx, newy);
+		} else if (grid[newx][newy] != null && grid[newx][newy].constructor.name == "User") {
+			this.dead = true;
+			let tempUser = this;
+			setTimeout( function(){ tempUser.readyToRemove = true; }, 1500);
+			return;
 		}
 
 		for(var i=this.tail.length-1; i>=1; i--) {
@@ -157,7 +170,7 @@ class User {
 		userids.push(socket.id);
 		console.log('Client '+users[socket.id].id+' has connected');
 		socket.emit('message', 'Welcome to Snake!');
-		socket.emit('allPlayerData', getAllPlayerData());
+		socket.emit('allPlayerData', getAllUserData());
 		socket.emit('allFoodData', getAllFoodData());
 		socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
 		return users[socket.id];
@@ -169,18 +182,38 @@ class User {
 		}
 	}
 
-	function getAllPlayerData() {
+	function getAllUserData() {
 		let data = [];
 		for (let id of userids) {
 			let user = users[id];
-			data.push({
+			let tempData = {
 				id: user.id,
 				tail: user.tail,
 				color1: user.color1,
 				color2: user.color2
-			});
+			}
+			if (user.dead) {
+				tempData.dead = true;
+			}
+			data.push(tempData);
 		}
 		return data;
+	}
+
+	function removeUser(socketid) {
+		console.log("ff");
+		users[socketid] = null;
+		userids.splice(userids.indexOf(socketid), 1);
+	}
+
+	function killUsers() {
+		for(let i=userids.length-1; i>=0; i--) {
+			let user = users[userids[i]];
+			console.log(user.readyToRemove);
+			if (user.readyToRemove) {
+				removeUser(user.id);
+			}
+		}	
 	}
 
 // FOOD CLASS

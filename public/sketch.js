@@ -10,6 +10,8 @@ let gridsize = 20;
 
 let ptx=pty=tx=ty=0;
 
+let latency = 0;
+
 function setup(callback) {
 	resizeCanvas(windowWidth, windowHeight);
 
@@ -18,9 +20,6 @@ function setup(callback) {
 	socket = io.connect('http://localhost:3000');
 	
 	socketEvents();
-
-	textAlign('center');
-	font(tile/3+'px Arial');
 	
 	callback();
 }
@@ -43,10 +42,16 @@ function draw() {
 		drawAllPlayers();
 		drawAllFoods();
 	pop();
+
+	textAlign('left');
+	font(tile+'px Arial');
+	fill('rgb(100,100,200)');
+	text("Ping: "+latency, tile/5, tile);
 }
 
 function keyPressed() {
 	//console.log(keyCode);
+
 	let dir = "";
 	switch(keyCode) {
 		case 119: dir = "UP"; break;
@@ -55,7 +60,9 @@ function keyPressed() {
 		case 100: dir = "RIGHT"; break;
 	}
 	if (dir != "") {
-		socket.emit('newDir', dir);
+		socket.emit('newDir', dir, function(data){
+			console.log(data)
+		});
 	}
 }
 

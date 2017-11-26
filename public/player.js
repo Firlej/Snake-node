@@ -6,6 +6,7 @@ class Player {
 		this.dir = vec(0, 0);
 		this.color1 = randomRgb();
 		this.color2 = randomRgb();
+		this.dead = false;
 	}
 
 	setDir(x, y) {
@@ -37,6 +38,18 @@ class Player {
 		}
 		fill(this.color2);
 		rect(this.tail[0].x*tile, this.tail[0].y*tile, tile, tile);
+		
+		// darker if dead
+		if(this.dead) {
+			fill(rgba(0, 0, 0, 0.5));
+			stroke(rgba(100, 100, 100, 0.8));
+			for(let i in this.tail) {
+				rect(this.tail[i].x*tile, this.tail[i].y*tile, tile, tile);
+				strokeRect(this.tail[i].x*tile, this.tail[i].y*tile, tile, tile);
+			}
+		}
+		textAlign('center');
+		font(tile/3+'px Arial');
 		fill('red');
 		text(this.shid, this.tail[0].x*tile+tile/2, this.tail[0].y*tile+tile/2);
 	}
