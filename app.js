@@ -30,8 +30,6 @@ function onConnection(socket) {
 	}
 }
 
-
-
 // VARIABLES
 
 	let users = userids = [];
@@ -51,21 +49,33 @@ function onConnection(socket) {
 				grid[i][j] = null;
 			}
 		}
+		for (let i in foods) {
+			//console.log(foods[i]);
+			let food = foods[i];
+			grid[food.pos.x][food.pos.y] = foods[i];
+		}
+		for (let id of userids) {
+			let user = users[id];
+			for (let i in user.tail) {
+				grid[user.tail[i].x][user.tail[i].y] = users[id];
+			}
+		}
+		//console.log(grid);
 	}
-//
+
+// MAIN DRAW LOOP
 
 setInterval(updateAll, 512);
 
 function updateAll() {
-	//io.emit('update', 'frame');
-
 	clearGrid();
 
 	updateAllUsers();
+
+	fillFoods();
+
 	io.emit('allPlayerData', getAllPlayerData());
-
-	//console.log(grid);
-
+	io.emit('allFoodData', getAllFoodData());
 }
 
 // USER CLASS
@@ -94,6 +104,10 @@ class User {
 		}
 		if (newIndex.x>=gridsize || newIndex.y>=gridsize || newIndex.x<0 || newIndex.y<0) {
 			return;
+		} else if (grid[newIndex.x][newIndex.y] != null && grid[newIndex.x][newIndex.y].constructor.name == "Food") {
+			this.eat(newIndex.x, newIndex.y);
+		} else if (grid[newIndex.x][newIndex.y] != null && grid[newIndex.x][newIndex.y].constructor.name == "User") {
+			// kill yourself
 		}
 
 		for(var i=this.tail.length-1; i>=1; i--) {
@@ -106,11 +120,10 @@ class User {
 		}
 	}
 
-	putOnGrid() {
-		for (let i in this.tail) {
-			let node = this.tail[i];
-			grid[node.x][node.y] = this.id;
-		}
+	eat(x, y) {
+		foods.splice(foods.indexOf(grid[x][y]), 1);
+		let last = this.tail[this.tail.length-1];
+		this.tail.push(last.copy());
 	}
 
 	setDir(data) {
@@ -145,24 +158,21 @@ class User {
 		console.log('Client '+users[socket.id].id+' has connected');
 		socket.emit('message', 'Welcome to Snake!');
 		socket.emit('allPlayerData', getAllPlayerData());
+		socket.emit('allFoodData', getAllFoodData());
 		socket.broadcast.emit('message', 'Welcome '+users[socket.id].shid+ ' to Snake!');
 		return users[socket.id];
 	}
 
 	function updateAllUsers() {
-		for (let i=0; i<userids.length; i++) {
-			let user = users[userids[i]];
-			//console.log(user);
-			user.update();
-			//console.log(user.tail[0].x, user.tail[0].y)
+		for (let id of userids) {
+			users[id].update();
 		}
 	}
 
 	function getAllPlayerData() {
 		let data = [];
-		for (let i = 0; i < userids.length; i++) {
-			let user = users[userids[i]];
-			//console.log(user);
+		for (let id of userids) {
+			let user = users[id];
 			data.push({
 				id: user.id,
 				tail: user.tail,
@@ -175,11 +185,45 @@ class User {
 
 // FOOD CLASS
 
-class Food {
-	constructor() {
-		this.pos = o.vec(Math.floor(o.random(0, gridsize)), Math.floor(o.random(0, gridsize)));
+	class Food {
+		constructor(x = Math.floor(o.random(0, gridsize)), y = Math.floor(o.random(0, gridsize))) {
+			this.pos = o.vec(x, y);
+			this.color = o.randomRgb();
+		}
 	}
-}
+
+// FOOD FUNCTIONS
+
+	function addFood() {
+		let x, y;
+		do {
+			x = Math.floor(o.random(0, gridsize));
+			y = Math.floor(o.random(0, gridsize));
+		} while (grid[x][y]!=null)
+
+		foods.push(new Food(x, y));
+	}
+
+	function getAllFoodData() {
+		let data = [];
+		for (let i in foods) {
+			let food = foods[i];
+			data.push({
+				pos: {x: food.pos.x, y: food.pos.y},
+				color: food.color
+			})
+		}
+		return data;
+	}
+
+	function fillFoods() {
+		while(foods.length < userids.length*3) {
+			addFood();
+		}
+	}
+
+//
+
 
 // io.sockets.emit('allPlayersData', data);
 // socket.emit('allPlayersData', data);

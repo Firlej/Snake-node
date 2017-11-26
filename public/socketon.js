@@ -38,7 +38,7 @@ function socketEvents() {
 	function onAllFoodData(data) {
 		foods = [];
 		for (let i in data) {
-			addFood(data[i])
+			addFood(data[i].pos, data[i].color);
 		}
 	}
 

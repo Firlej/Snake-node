@@ -13,7 +13,7 @@ let ptx=pty=tx=ty=0;
 function setup(callback) {
 	resizeCanvas(windowWidth, windowHeight);
 
-	background('black');
+	background(rgba(31, 31, 31));
 
 	socket = io.connect('http://localhost:3000');
 	
@@ -21,16 +21,12 @@ function setup(callback) {
 
 	textAlign('center');
 	font(tile/3+'px Arial');
-
-	addFood({x: 5, y: 5});
-	addFood({x: 5, y: 5});
-	addFood({x: 5, y: 5});
 	
 	callback();
 }
 
 function draw() {
-	background('black');
+	background(rgba(31, 31, 31));
 
 	if (me==null || myId==null) {
 		fill('white');
@@ -39,8 +35,8 @@ function draw() {
 	}
 
 	push();
-		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.01);
-		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.01);
+		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.005);
+		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.005);
 		ptx=tx; pty=ty;
 		translate(tx, ty);
 		drawBorders();
@@ -65,7 +61,7 @@ function keyPressed() {
 
 function drawBorders() {
 	var gridsizepx = gridsize*tile;
-	fill(rgba(255, 0, 0, 100));
+	fill(rgba(97, 65, 47, 0.8));
 	rect(-tile/2, -tile/2, gridsizepx+tile, tile/2);
 	rect(gridsizepx, -tile/2, tile/2, gridsizepx+tile);
 	rect(-tile/2, gridsizepx, gridsizepx+tile, tile/2);

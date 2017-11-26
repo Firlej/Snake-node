@@ -178,6 +178,9 @@ class Vector {
         this.x = x;
         this.y = y;
     }
+    copy() {
+        return new Vector(this.x, this.y);
+    }
 }
 
 function vec(x = 0, y = 0) {

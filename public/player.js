@@ -29,7 +29,6 @@ class Player {
 	// }
 
 	draw() {
-		console.log("ggg");
 		fill(this.color1);
 		stroke(this.color2);
 		for(var i=this.tail.length-1; i>=1; i--) {
@@ -49,11 +48,7 @@ function addPlayer(id) {
 	return players[id];
 }
 function drawAllPlayers() {
-	for (let i=0; i<playerids.length; i++) {
-		players[playerids[i]].draw();
+	for (let id of playerids) {
+		players[id].draw();
 	}
-	// for (let id in playerids) {
-	// 	console.log(id);
-	// 	//player.draw();
-	// }
 }
