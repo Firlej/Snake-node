@@ -32,6 +32,8 @@ function setup(callback) {
 function draw() {
 	background(rgba(31, 31, 31));
 
+	drawPing();
+
 	if (playerids.length==0 || !isAnyonePlaying()) {
 		fill('white');
 		textAlign('center');
@@ -50,11 +52,12 @@ function draw() {
 	} else {
 		drawSpectate = false;
 	}
+	
 	me = players[drawId];
-	//console.log(me.tail[0].x, me.tail[0].y, " || ", players[me.id].tail[0].x, players[me.id].tail[0].y);
+	
 	push();
-		tx = lerp(ptx, width/2-players[drawId].tail[0].x*tile, 0.005);
-		ty = lerp(pty, height/2-players[drawId].tail[0].y*tile, 0.005);
+		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.005);
+		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.005);
 		ptx=tx; pty=ty;
 		translate(tx, ty);
 		drawBorders();
@@ -62,19 +65,12 @@ function draw() {
 		drawAllFoods();
 	pop();
 
-	textAlign('left');
-	font(tile+'px Arial');
-	fill('rgb(100,100,200)');
-	text("Ping: "+latency, tile/5, tile);
-
-	if (drawSpectate) {
-		background(rgba(31, 31, 31, 0.5));
-		fill(rgba(100, 255, 100, 0.7));
-		textAlign('center');
-		font(tile+'px Arial');
-		text("SPECTATE", width/2, height/2);
-	}
+	drawSpectatingScreen();
 }
+
+
+
+
 
 function keyPressed() {
 	//console.log(keyCode);
@@ -100,6 +96,23 @@ function drawBorders() {
 	rect(gridsizepx, -tile/2, tile/2, gridsizepx+tile);
 	rect(-tile/2, gridsizepx, gridsizepx+tile, tile/2);
 	rect(-tile/2, -tile/2, tile/2, gridsizepx+tile);
+}
+
+function drawSpectatingScreen() {
+	if (drawSpectate) {
+		background(rgba(31, 31, 31, 0.5));
+		fill(rgba(100, 255, 100, 0.7));
+		textAlign('center');
+		font(tile + 'px Arial');
+		text("SPECTATE", width / 2, height / 2);
+	}
+}
+
+function drawPing() {
+	textAlign('left');
+	font(tile + 'px Arial');
+	fill('rgb(100,100,200)');
+	text("Ping: " + latency, tile / 5, tile);
 }
 
 function mousePressed() {

@@ -23,6 +23,7 @@ function onConnection(socket) {
 
 	function onPlay() {
 		me.playing = true;
+		io.emit('allPlayerData', getAllUserData());
 	}
 
 	function onLatency(startTime, cb) {
@@ -36,6 +37,8 @@ function onConnection(socket) {
 
 	function onDisconnect() {
 		removeUser(socket.id);
+		io.emit('allPlayerData', getAllUserData());
+		io.emit('allFoodData', getAllFoodData());
 		console.log("Client "+socket.id+" has disconnected");
 	}
 }
@@ -84,7 +87,20 @@ function updateAll() {
 
 	fillFoods();
 
-	io.emit('allPlayerData', getAllUserData());
+	
+	let data = [];
+	for (let id of userids) {
+		let user = users[id];
+		let tempData = {
+			id: user.id,
+			tail: user.tail
+		}
+		if (user.dead) { tempData.dead = user.dead; }
+		if (!user.playing) { tempData.playing = user.playing; }
+		data.push(tempData);
+	}
+	io.emit('allPlayerUpdatedData', data);
+
 	io.emit('allFoodData', getAllFoodData());
 }
 

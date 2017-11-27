@@ -14,6 +14,10 @@ class Player {
 		this.dir.set(x, y);
 	}
 
+	update() {
+		//
+	}
+
 	draw() {
 		if (!this.playing) { return; }
 		fill(this.color1);
@@ -48,6 +52,7 @@ function addPlayer(id) {
 }
 function drawAllPlayers() {
 	for (let id of playerids) {
+		players[id].update();
 		players[id].draw();
 	}
 }

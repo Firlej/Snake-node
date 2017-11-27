@@ -4,6 +4,7 @@ function socketEvents() {
 		myId = drawId = socket.id;
 		socket.emit('play');
 		ping();
+		console.log('hey?');
 	});
 	function ping() {
 		socket.emit('latency', Date.now(), function(startTime) {
@@ -14,13 +15,31 @@ function socketEvents() {
 	socket.on('message', onMessage);
 	socket.on('update', onMessage);
 	socket.on('allPlayerData', onAllPlayerData);
+	socket.on('allPlayerUpdatedData', onAllPlayerUpdatedData);
 	socket.on('allFoodData', onAllFoodData);
 	socket.on('death', onDeath);
 
 	function onMessage(data) {
-		console.log(data)
+		console.log(data);
 	}
 
+	function onAllPlayerUpdatedData(data) {
+		for (let i in data) {
+			let user = data[i];
+			let player = players[user.id];
+			console.log(player.playing, player.dead);
+			if (user.playing != undefined) {
+				player.playing = user.playing;
+			}
+			if (user.dead != undefined) {
+				player.dead = user.dead;
+			}
+			player.tail = [];
+			for (let j in user.tail) {
+				player.tail.push(vec(user.tail[j].x, user.tail[j].y));
+			}
+		}
+	}
 	function onAllPlayerData(data) {
 		players = [];
 		playerids = [];
