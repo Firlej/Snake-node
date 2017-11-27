@@ -7,29 +7,15 @@ class Player {
 		this.color1 = randomRgb();
 		this.color2 = randomRgb();
 		this.dead = false;
+		this.playing = false;
 	}
 
 	setDir(x, y) {
 		this.dir.set(x, y);
 	}
 
-	// update() {
-	// 	if (this.tail[0].x+this.dir.x>=gridsize || this.tail[0].y+this.dir.y>=gridsize ||
-	// 		this.tail[0].x+this.dir.x<0 || this.tail[0].y+this.dir.y<0) { this.dir.set(0, 0); }
-	// 	// todo is this check necessary?
-	// 	if (this.dir.x==0 && this.dir.y==0) {
-	// 		//console.log('Tried to update snake with not set dir');
-	// 		return;
-	// 	}
-
-	// 	for(var i=this.tail.length-1; i>=1; i--) {
-	// 		this.tail[i].set(this.tail[i-1].x, this.tail[i-1].y);
-	// 	}
-	// 	this.tail[0].add(this.dir);
-	// 	//this.dir.set(0, 0)
-	// }
-
 	draw() {
+		if (!this.playing) { return; }
 		fill(this.color1);
 		stroke(this.color2);
 		for(var i=this.tail.length-1; i>=1; i--) {
@@ -64,4 +50,12 @@ function drawAllPlayers() {
 	for (let id of playerids) {
 		players[id].draw();
 	}
+}
+function isAnyonePlaying() {
+	for (let id of playerids) {
+		if (players[id].playing) {
+			return true;
+		}
+	}
+	return false;
 }

@@ -19,6 +19,11 @@ function onConnection(socket) {
 	socket.on('disconnect', onDisconnect);
 	socket.on('newDir', onNewDir);
 	socket.on('latency', onLatency);
+	socket.on('play', onPlay);
+
+	function onPlay() {
+		me.playing = true;
+	}
 
 	function onLatency(startTime, cb) {
 		cb(startTime);
@@ -102,6 +107,7 @@ class User {
 		this.nextDir = null;
 		this.dead = false;
 		this.readyToRemove = false;
+		this.playing = false;
 	}
 	update() {
 		if (this.dead) {
@@ -190,10 +196,9 @@ class User {
 				id: user.id,
 				tail: user.tail,
 				color1: user.color1,
-				color2: user.color2
-			}
-			if (user.dead) {
-				tempData.dead = true;
+				color2: user.color2,
+				playing : user.playing,
+				dead: user.dead
 			}
 			data.push(tempData);
 		}
@@ -201,7 +206,6 @@ class User {
 	}
 
 	function removeUser(socketid) {
-		console.log("ff");
 		users[socketid] = null;
 		userids.splice(userids.indexOf(socketid), 1);
 	}
@@ -209,9 +213,9 @@ class User {
 	function killUsers() {
 		for(let i=userids.length-1; i>=0; i--) {
 			let user = users[userids[i]];
-			console.log(user.readyToRemove);
 			if (user.readyToRemove) {
-				removeUser(user.id);
+				user.playing = false;
+				//removeUser(user.id);
 			}
 		}	
 	}

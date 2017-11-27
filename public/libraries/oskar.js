@@ -131,9 +131,11 @@ function floor(a) {
     return Math.floor(a);
 }
 function random(a, b) {
-    let x = b-a;
-    x = Math.random()*x + a;
-    return x;
+    return Math.random()*(b-a) + a;
+}
+function randomArray(arr) {
+    if (arr.length==0) { return null; }
+    return arr[floor(random(0, arr.length))];
 }
 
 function push() { ctx.save() };
