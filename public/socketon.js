@@ -2,9 +2,9 @@ function socketEvents() {
 	
 	socket.on('connect', function(){
 		myId = drawId = socket.id;
-		socket.emit('play');
+		//socket.emit('play');
 		ping();
-		console.log('hey?');
+		//console.log('hey?');
 	});
 	function ping() {
 		socket.emit('latency', Date.now(), function(startTime) {
@@ -24,10 +24,15 @@ function socketEvents() {
 	}
 
 	function onAllPlayerUpdatedData(data) {
+		//console.log("onAllPlayerUpdatedData");
 		for (let i in data) {
 			let user = data[i];
 			let player = players[user.id];
-			console.log(player.playing, player.dead);
+			if (!player) {
+				continue;
+			}
+			//console.log(player.playing, player.dead);
+			console.log()
 			if (user.playing != undefined) {
 				player.playing = user.playing;
 			}
@@ -41,6 +46,7 @@ function socketEvents() {
 		}
 	}
 	function onAllPlayerData(data) {
+		//console.log("onAllPlayerData");
 		players = [];
 		playerids = [];
 		//console.log(data.length, data);

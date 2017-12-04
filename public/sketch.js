@@ -33,6 +33,8 @@ function draw() {
 	background(rgba(31, 31, 31));
 
 	drawPing();
+	
+	me = players[drawId];
 
 	if (playerids.length==0 || !isAnyonePlaying()) {
 		fill('white');
@@ -40,7 +42,7 @@ function draw() {
 		font(tile+'px Arial');
 		text("LOADING", width/2, height/2);
 		return;
-	} else if (players[myId].dead!=false) {
+	} else if (players[myId].dead || !players[myId].playing) {
 		//console.log(frameCount%1000);
 		if (!me.playing || frameCount%1000 == 0) {
 			do {

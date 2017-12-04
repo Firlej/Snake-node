@@ -1,5 +1,4 @@
 let express = require('express');
-let o = require('./oskar-node.js');
 let app = express();
 let server = app.listen(process.env.PORT || 3000, function() {
 	let host = server.address().address;
@@ -10,6 +9,8 @@ let server = app.listen(process.env.PORT || 3000, function() {
 app.use(express.static('public'));
 
 let io = require('socket.io')(server);
+
+let o = require('./oskar-node.js');
 
 io.sockets.on('connection', onConnection);
 
@@ -62,17 +63,17 @@ function onConnection(socket) {
 			}
 		}
 		for (let i in foods) {
-			//console.log(foods[i]);
 			let food = foods[i];
 			grid[food.pos.x][food.pos.y] = foods[i];
 		}
 		for (let id of userids) {
 			let user = users[id];
-			for (let i in user.tail) {
-				grid[user.tail[i].x][user.tail[i].y] = users[id];
+			if (!user.dead) {
+				for (let i in user.tail) {
+					grid[user.tail[i].x][user.tail[i].y] = users[id];
+				}
 			}
 		}
-		//console.log(grid);
 	}
 
 // MAIN DRAW LOOP
@@ -86,7 +87,6 @@ function updateAll() {
 	killUsers();
 
 	fillFoods();
-
 	
 	let data = [];
 	for (let id of userids) {
@@ -126,7 +126,7 @@ class User {
 		this.playing = false;
 	}
 	update() {
-		if (this.dead) {
+		if (this.dead || !this.playing) {
 			return;
 		}
 		this.dirUpdated = false;
