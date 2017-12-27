@@ -1,14 +1,10 @@
-let canvas;
-let ctx;
+let canvas, ctx;
 
-let width;
-let height;
+let width, height;
 
-let windowWidth;
-let windowHeight;
+let windowWidth, windowHeight;
 
-let mouseX;
-let mouseY;
+let mouseX, mouseY;
 let keyCode;
 
 let images = [];
@@ -17,14 +13,18 @@ let imagesLoaded = false;
 let PI = Math.PI;
 let frameCount = 0;
 
-window.onload = function() {
-    canvas = document.getElementById('canvas');
+function setCtxByCanvasId(id) {
+    canvas = document.getElementById(id);
     ctx = canvas.getContext('2d');
     ctx.mozImageSmoothingEnabled = false;
     ctx.webkitImageSmoothingEnabled = false;
     ctx.msImageSmoothingEnabled = false;
     ctx.imageSmoothingEnabled = false;
     ctx.stroke();
+}
+
+window.onload = function() {
+    setCtxByCanvasId('canvas');
 
     addEventListeners();
 

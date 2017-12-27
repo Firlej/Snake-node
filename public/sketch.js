@@ -1,21 +1,13 @@
 let socket;
 
-let players = playerids = [];
-let foods = [];
-let me = myId = drawId = undefined;
+let myId = undefined;
 
-const tile = 40;
-let gridsize = 20;
+const tile = 4;
+let gridsize = 200;
 
 let ptx=pty=tx=ty=0;
 
 let latency = 0;
-
-let drawSpectate = false;
-
-function play() {
-	socket = io.connect('http://localhost:3000');
-}
 
 function setup(callback) {
 	resizeCanvas(windowWidth, windowHeight);
@@ -33,8 +25,6 @@ function draw() {
 	background(rgba(31, 31, 31));
 
 	drawPing();
-	
-	me = players[drawId];
 
 	if (playerids.length==0 || !isAnyonePlaying()) {
 		fill('white');
@@ -42,24 +32,11 @@ function draw() {
 		font(tile+'px Arial');
 		text("LOADING", width/2, height/2);
 		return;
-	} else if (players[myId].dead || !players[myId].playing) {
-		//console.log(frameCount%1000);
-		if (!me.playing || frameCount%1000 == 0) {
-			do {
-				drawId = randomArray(playerids);
-				me = players[drawId];
-			} while (me.playing!=true)
-		}
-		drawSpectate = true;
-	} else {
-		drawSpectate = false;
 	}
 	
-	me = players[drawId];
-	
 	push();
-		tx = lerp(ptx, width/2-me.tail[0].x*tile, 0.005);
-		ty = lerp(pty, height/2-me.tail[0].y*tile, 0.005);
+		tx = lerp(ptx, width/2-players[myId].tail[0].x*tile, 0.005);
+		ty = lerp(pty, height/2-players[myId].tail[0].y*tile, 0.005);
 		ptx=tx; pty=ty;
 		translate(tx, ty);
 		drawBorders();
@@ -69,10 +46,6 @@ function draw() {
 
 	drawSpectatingScreen();
 }
-
-
-
-
 
 function keyPressed() {
 	//console.log(keyCode);
@@ -115,8 +88,4 @@ function drawPing() {
 	font(tile + 'px Arial');
 	fill('rgb(100,100,200)');
 	text("Ping: " + latency, tile / 5, tile);
-}
-
-function mousePressed() {
-	//
 }

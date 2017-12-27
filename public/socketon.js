@@ -6,12 +6,14 @@ function socketEvents() {
 		ping();
 		//console.log('hey?');
 	});
+
 	function ping() {
 		socket.emit('latency', Date.now(), function(startTime) {
 			latency = Date.now() - startTime;
 			ping();
 		});
 	}
+	
 	socket.on('message', onMessage);
 	socket.on('update', onMessage);
 	socket.on('allPlayerData', onAllPlayerData);
@@ -24,60 +26,18 @@ function socketEvents() {
 	}
 
 	function onAllPlayerUpdatedData(data) {
-		//console.log("onAllPlayerUpdatedData");
-		for (let i in data) {
-			let user = data[i];
-			let player = players[user.id];
-			if (!player) {
-				continue;
-			}
-			//console.log(player.playing, player.dead);
-			console.log()
-			if (user.playing != undefined) {
-				player.playing = user.playing;
-			}
-			if (user.dead != undefined) {
-				player.dead = user.dead;
-			}
-			player.tail = [];
-			for (let j in user.tail) {
-				player.tail.push(vec(user.tail[j].x, user.tail[j].y));
-			}
-		}
+		//
 	}
 	function onAllPlayerData(data) {
-		//console.log("onAllPlayerData");
-		players = [];
-		playerids = [];
-		//console.log(data.length, data);
-		for (let i in data) {
-			let user = data[i];
-			let player = players[user.id];
-			player = addPlayer(user.id);
-			player.color1 = user.color1;
-			player.color2 = user.color2;
-			player.dead = user.dead;
-			player.playing = user.playing;
-			
-			player.tail = [];
-			for (let j in user.tail) {
-				player.tail.push(vec(user.tail[j].x, user.tail[j].y));
-			}
-		}
-		if (players[myId].playing) {
-			me = players[myId];
-		}
+		//
 	}
 
 	function onAllFoodData(data) {
-		foods = [];
-		for (let i in data) {
-			addFood(data[i].pos, data[i].color);
-		}
+		//
 	}
 
 	function onDeath(data) {
-		console.log("death: "+data);
+		//
 	}
 
 	// update changes

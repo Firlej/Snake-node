@@ -18,59 +18,15 @@
 			margin: 0px;
 			overflow: hidden;
 		}
-		#startScreen {
-			display: none;
-			width: 30%;
-			height: 30%;
-			background-color: red;
-			position: absolute;
-			top: 35%;
-			left: 35%;
-			font-family: 'FontAwesome';
-			border-radius: 25%;
-		}
-		#playButton {
-			position: absolute;
-			background-color: lime;
-			left: calc(50% - 50% / 2);
-			top: calc(50% - 10% / 2);
-			width: 50%;
-			height: 10%;
-			line-height: 100%;
-			text-align: center;
-			border: 1px solid black;
-		}
 	</style>
 </head>
 
 <body>
 	<div id="gameArea">
 		<canvas id="canvas"></canvas>
-
-		<div id="startScreen">
-			<div id="playButton">
-				START
-			</div>
-		</div>
-
-		<!-- <div id="lostScreen">
-				<div id="lostScore">SCORE:</div>
-				<div id="back">BACK</div>
-				<div id="playAgain">AGAIN</div>
-				</div>
-		</div> -->
-
 	</div>
 
 	<script>
-		$("#startScreen").toggle();
-
-		$('#playButton').click(function(){
-			$("#startScreen").fadeOut('slow');
-			setTimeout(function() {
-				socket.emit('play');
-			}, 300);
-		});
 	</script>
 </body>
 
